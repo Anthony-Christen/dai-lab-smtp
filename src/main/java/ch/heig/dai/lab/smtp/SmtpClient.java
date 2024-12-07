@@ -1,9 +1,52 @@
+/**
+ * @Authors Bouzourène Ryad & Christen Anthony
+ * @Date    2024-12-07
+ */
+
 package ch.heig.dai.lab.smtp;
 import java.io.*;
 import java.net.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-class SMTPClient {
+class SmtpClient {
+    // ------------------------------------------------------------------------------
+    // Attributes
+    // ------------------------------------------------------------------------------
+    private final String smtpServerAddress;
+    private final int smtpServerPort;
+    private final Charset encoding;
+
+    // ------------------------------------------------------------------------------
+    // Constructor
+    // ------------------------------------------------------------------------------
+    public SmtpClient(String smtpServerAddress, int smtpServerPort, Charset encoding) {
+        this.smtpServerAddress = smtpServerAddress;
+        this.smtpServerPort = smtpServerPort;
+        this.encoding = encoding;
+    }
+
+    // ------------------------------------------------------------------------------
+    // Methods
+    // ------------------------------------------------------------------------------
+    public void connect() {
+        // TODO
+        System.out.println("Connecting to " + smtpServerAddress + ":" + smtpServerPort);
+        System.out.println();
+    }
+
+    public void send(Email email) {
+        // TODO
+        System.out.println("Sending email... (" + smtpServerAddress + ":" + smtpServerPort + ")");
+        System.out.println(email);
+        System.out.println();
+    }
+
+    public void quit() {
+        // TODO
+        System.out.println("Closing connection...");
+    }
+
     public static void main(String [] args) {
 
         try (Socket socket = new Socket("localhost", 1025);

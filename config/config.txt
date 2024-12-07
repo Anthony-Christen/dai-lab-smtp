@@ -1,0 +1,14 @@
+# SMTP server config
+smtpServerAddress=localhost
+smtpServerPort=1025
+
+# Messages config
+messagesEncoding=UTF-8
+messagesSeparator=$---
+
+# Files config
+messagesFileName=messages.txt
+victimsFileName=victims.txt
+
+# Groups config
+nbGroups=7
