@@ -39,7 +39,7 @@ Features:
 
 1. Java 17 or later installed on your machine.
 2. Docker to run the mock SMTP server.
-3. (Maven to compile the application with the given `pom.xml)
+3. (Maven to compile the application with the given `pom.xml`)
 
 ### Setting up MailDev
 
@@ -154,8 +154,7 @@ classDiagram
 The `ConfigLoader` class is the backbone of the prank email application, as it manages 
 the configuration settings required to run the program. It is responsible for reading 
 and validating all the necessary parameters from the configuration file 
-(`config/config.txt`) and ensuring they are ready for use. The configuration file 
-includes details like the number of groups, SMTP server settings, and file paths for 
+(`config/config.txt`). The configuration file includes details like the number of groups, SMTP server settings, and file names for 
 victims and messages.
 
 Responsibilities:
