@@ -161,7 +161,7 @@ Responsibilities:
 
 - Load configuration: Parses the key-value pairs from the configuration file into 
 a map for easy access.
-- Validate Configuration: Ensures that all required keys are present and contain 
+- Validate configuration: Ensures that all required keys are present and contain 
   valid values. For instance:
     + Numeric values, like the number of groups and the SMTP port, must be valid 
     integers.
