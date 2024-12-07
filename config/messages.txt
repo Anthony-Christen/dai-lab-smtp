@@ -1,0 +1,29 @@
+Urgent - Problème de compte
+Bonjour,
+Nous avons détecté une activité inhabituelle sur votre compte. Merci de vérifier vos informations dès que possible.
+Cordialement,
+L'équipe support.
+$---
+Félicitations, vous avez gagné !
+Félicitations !
+Vous êtes notre heureux gagnant du tirage au sort de cette semaine. Contactez-nous pour récupérer votre prix.
+Meilleures salutations,
+Le Comité des Prix.
+$---
+Mise à jour de vos informations personnelles
+Cher utilisateur,
+Merci de prendre quelques minutes pour mettre à jour vos informations personnelles afin d'améliorer notre service.
+Cordialement,
+L'administration.
+$---
+Invitation spéciale
+Bonjour,
+Vous êtes invité à une soirée exclusive ce vendredi. N'oubliez pas de confirmer votre présence.
+À bientôt,
+L'équipe organisatrice.
+$---
+Offre limitée - Ne manquez pas ça !
+Salut !
+Une offre exceptionnelle vous attend ! Rendez-vous sur notre site pour en profiter avant qu'il ne soit trop tard.
+Cordialement,
+Votre partenaire préféré.
