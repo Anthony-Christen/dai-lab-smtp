@@ -181,7 +181,7 @@ Responsibilities:
 - Create groups: Distributes email addresses into groups such that each group has 
 one sender and at least one receiver. The distribution is as balanced as possible.
 - Validate input: Ensures there are enough email addresses to form the specified 
-  number of groups, and that no group exceeds the maximum allowed size (e.g., 5 members per group).
+  number of groups, and that no group exceeds the maximum allowed size (5 members per group).
 
 #### Group
 
