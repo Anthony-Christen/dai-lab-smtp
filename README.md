@@ -185,7 +185,7 @@ one sender and at least one receiver. The distribution is as balanced as possibl
 
 #### Group
 
-The `Group` class represents a group of emails in the prank email campaign. Each 
+The `Group` class represents a group of email addresses in the prank email campaign. Each 
 group consists of a single sender and a list of receivers, which are selected from 
 the provided list of victims.
 
