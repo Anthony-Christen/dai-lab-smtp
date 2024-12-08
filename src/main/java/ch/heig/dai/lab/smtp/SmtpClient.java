@@ -8,6 +8,7 @@ import java.io.*;
 import java.net.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 class SmtpClient {
     // ------------------------------------------------------------------------------
@@ -63,38 +64,54 @@ class SmtpClient {
     }
 
     public void send(Email email) {
-        
-        String inLine ="";
-        String outLine ;
-        
-        outLine = "MAIL FROM:<"+email.getSender() + ">\n";
+        String inLine = "";
+        String outLine;
+    
+        // MAIL FROM
+        outLine = "MAIL FROM:<" + email.getSender() + ">\n";
         sendLine(outLine);
         receptingLine(inLine);
-
-        for(var r : email.getReceivers()){
-            sendLine("RCPT TO:<"+r+ ">\n");
+    
+        // RCPT TO for each receiver
+        for (var r : email.getReceivers()) {
+            sendLine("RCPT TO:<" + r + ">\n");
             receptingLine(inLine);
         }
-
-        outLine = "DATA" + "\n";
+    
+        // DATA
+        outLine = "DATA\n";
         sendLine(outLine);
         receptingLine(inLine);
-
-        outLine = "From:<"+email.getSender() + ">\n";
+    
+        // Headers
+        outLine = "From: " + email.getSender() + "\n";
         sendLine(outLine);
 
-        outLine = "Subject: "+email.getSubject() + "\n";
+        // Concatenate all recipients for the "To" header
+        String toHeader = "To: " + String.join(", ", email.getReceivers()) + "\n";
+        sendLine(toHeader);
+    
+        // Dynamically encoded Subject
+        outLine = "Subject: " + encodeSubject(email.getSubject()) + "\n";
         sendLine(outLine);
-
-        outLine = "\n" +email.getBody() + "\r\n.\r\n";
+    
+        // Content-Type header using the client's encoding
+        outLine = "Content-Type: text/plain; charset=" + encoding.name() + "\n";
+        sendLine(outLine);
+    
+        // Content-Transfer-Encoding header for Base64
+        outLine = "Content-Transfer-Encoding: base64\n\n";
+        sendLine(outLine);
+    
+        // Encoded Body
+        outLine = encodeBody(email.getBody()) + "\r\n.\r\n";
         sendLine(outLine);
         receptingLine(inLine);
-
+    
         System.out.println("Sending email... (" + smtpServerAddress + ":" + smtpServerPort + ")");
         System.out.println(email);
-        
-        
     }
+    
 
     public void quit() {
 
@@ -128,4 +145,18 @@ class SmtpClient {
             System.err.println("Error "+ e);
         }
     }
+
+    private String encodeSubject(String subject) {
+    return "=?"
+            + encoding.name() // Utilise l'encodage du client
+            + "?B?"
+            + Base64.getEncoder().encodeToString(subject.getBytes(encoding))
+            + "?=";
+    }
+
+    private String encodeBody(String body) {
+        return Base64.getEncoder().encodeToString(body.getBytes(encoding));
+    }
+    
+
 }
