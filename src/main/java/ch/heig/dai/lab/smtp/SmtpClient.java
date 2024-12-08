@@ -7,8 +7,6 @@ package ch.heig.dai.lab.smtp;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 class SmtpClient {
     // ------------------------------------------------------------------------------
@@ -33,130 +31,88 @@ class SmtpClient {
     // ------------------------------------------------------------------------------
     // Methods
     // ------------------------------------------------------------------------------
-    public void connect()throws UnknownHostException, IOException{
+    public void connect()throws UnknownHostException ,IOException{
         
-        try{
-            socket = new Socket(getSmtpServerAddress(), getSmtpServerPort());
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream(), getEncoding()));
-            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), getEncoding()));
-            System.out.println("Connecting to " + smtpServerAddress + ":" + smtpServerPort);
+        
+        socket = new Socket(smtpServerAddress, smtpServerPort);
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream(), encoding));
+        out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), encoding));
+        System.out.println("Connecting to " + smtpServerAddress + ":" + smtpServerPort);
 
-            String inLine ;
-            String outLine ;
+        String inLine ;
 
-            System.out.println(in.readLine());
-            
-            outLine = "EHLO test" + "\n" ;
-            sendLine(outLine);
+        checkSMTPServerStatut("220");
+        
+        sendLine("EHLO test");
 
-            while((inLine=in.readLine())!=null){
+        while((inLine=in.readLine())!=null){
 
-                System.out.println(inLine);
-                if(inLine.charAt(3) == ' '){
-                    break ;
-                }
+            if(inLine.charAt(3) == ' '){
+                break ;
             }
-
-        }catch(Exception e){
-            System.err.println("Erreur " + e);
         }
+
         
     }
 
-    public void send(Email email) {
-        String inLine = "";
-        String outLine;
-    
+    public void send(Email email) throws IOException{
+
         // MAIL FROM
-        outLine = "MAIL FROM:<" + email.getSender() + ">\n";
-        sendLine(outLine);
-        receptingLine(inLine);
+        
+        sendLine("MAIL FROM:<" + email.getSender() + ">");
+        checkSMTPServerStatut("250");
     
         // RCPT TO for each receiver
         for (var r : email.getReceivers()) {
-            sendLine("RCPT TO:<" + r + ">\n");
-            receptingLine(inLine);
+            sendLine("RCPT TO:<" + r + ">");
+            checkSMTPServerStatut("250");
         }
     
         // DATA
-        outLine = "DATA\n";
-        sendLine(outLine);
-        receptingLine(inLine);
-    
-        // Headers
-        outLine = "From: " + email.getSender() + "\n";
-        sendLine(outLine);
+        
+        sendLine("DATA");
+        checkSMTPServerStatut("354");
 
-        // Concatenate all recipients for the "To" header
-        String toHeader = "To: " + String.join(", ", email.getReceivers()) + "\n";
-        sendLine(toHeader);
-    
-        // Dynamically encoded Subject
-        outLine = "Subject: " + encodeSubject(email.getSubject()) + "\n";
-        sendLine(outLine);
-    
-        // Content-Type header using the client's encoding
-        outLine = "Content-Type: text/plain; charset=" + encoding.name() + "\n";
-        sendLine(outLine);
-    
-        // Content-Transfer-Encoding header for Base64
-        outLine = "Content-Transfer-Encoding: base64\n\n";
-        sendLine(outLine);
-    
-        // Encoded Body
-        outLine = encodeBody(email.getBody()) + "\r\n.\r\n";
-        sendLine(outLine);
-        receptingLine(inLine);
+        StringBuilder content = new StringBuilder();
+        content.append("Content-Type: text/plain; charset=\"").append(encoding.name()).append("\"\n")// Encoding
+        .append("From: ").append(email.getSender()).append("\n")    // Headers
+        .append("Subject: ").append(email.getSubject()).append("\n")// Subject
+        .append("\n").append(email.getBody()).append("\r\n.\r");  // Body
+
+        sendLine(content.toString());
+        checkSMTPServerStatut("250");
+
     
         System.out.println("Sending email... (" + smtpServerAddress + ":" + smtpServerPort + ")");
         System.out.println(email);
     }
     
 
-    public void quit() {
+    public void quit()throws IOException {
 
-        String inLine="" ;
-        sendLine("QUIT\n");
-        receptingLine(inLine);
-
+        sendLine("QUIT");
+        checkSMTPServerStatut("221");
+        in.close();
+        out.close();
+        socket.close();
+    
         System.out.println("Closing connection...");
     }
 
-    private String getSmtpServerAddress(){return smtpServerAddress;}
-    private int getSmtpServerPort(){return smtpServerPort;}
-    private Charset getEncoding(){return encoding;}
-    private void sendLine(String outLine){
 
-        try{
-            System.out.print(outLine);
-            out.write(outLine);
-            out.flush();
-        }catch(IOException e){
-            System.err.println("Error "+ e);
+    private void sendLine(String outLine) throws IOException{
+
+        out.write(outLine +"\n");
+        out.flush();    
+        
+    }
+    private void checkSMTPServerStatut(String prefix)throws IOException{
+        
+        String inLine = in.readLine();
+        if(!inLine.startsWith(prefix)){
+            throw new IOException("[SMTP Server] " + inLine);
         }
         
-
-    }
-    private void receptingLine(String inLine){
-        try{
-            inLine = in.readLine();
-            System.out.println(inLine);
-        }catch(IOException e){
-            System.err.println("Error "+ e);
-        }
-    }
-
-    private String encodeSubject(String subject) {
-    return "=?"
-            + encoding.name() // Utilise l'encodage du client
-            + "?B?"
-            + Base64.getEncoder().encodeToString(subject.getBytes(encoding))
-            + "?=";
-    }
-
-    private String encodeBody(String body) {
-        return Base64.getEncoder().encodeToString(body.getBytes(encoding));
     }
     
-
 }

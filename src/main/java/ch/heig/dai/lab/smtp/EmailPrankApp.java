@@ -5,6 +5,7 @@
 
 package ch.heig.dai.lab.smtp;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,7 +73,7 @@ public class EmailPrankApp {
      * @param emails     the list of emails to send.
      * @param smtpClient the SMTP client used to send the emails.
      */
-    private static void sendEmails(List<Email> emails, SmtpClient smtpClient) {
+    private static void sendEmails(List<Email> emails, SmtpClient smtpClient) throws IOException{
         for (Email email : emails) {
             smtpClient.send(email);
         }
