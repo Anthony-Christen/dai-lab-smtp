@@ -16,6 +16,9 @@ class SmtpClient {
     private final String smtpServerAddress;
     private final int smtpServerPort;
     private final Charset encoding;
+    private Socket socket ;
+    private BufferedReader in;
+    private BufferedWriter out;
 
     // ------------------------------------------------------------------------------
     // Constructor
@@ -29,39 +32,21 @@ class SmtpClient {
     // ------------------------------------------------------------------------------
     // Methods
     // ------------------------------------------------------------------------------
-    public void connect() {
-        // TODO
-        System.out.println("Connecting to " + smtpServerAddress + ":" + smtpServerPort);
-        System.out.println();
-    }
+    public void connect()throws UnknownHostException, IOException{
+        
+        try{
+            socket = new Socket(getSmtpServerAddress(), getSmtpServerPort());
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream(), getEncoding()));
+            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), getEncoding()));
+            System.out.println("Connecting to " + smtpServerAddress + ":" + smtpServerPort);
 
-    public void send(Email email) {
-        // TODO
-        System.out.println("Sending email... (" + smtpServerAddress + ":" + smtpServerPort + ")");
-        System.out.println(email);
-        System.out.println();
-    }
-
-    public void quit() {
-        // TODO
-        System.out.println("Closing connection...");
-    }
-
-    public static void main(String [] args) {
-
-        try (Socket socket = new Socket("localhost", 1025);
-             var in = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
-             var out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8))) {
-            
             String inLine ;
             String outLine ;
 
             System.out.println(in.readLine());
             
             outLine = "EHLO test" + "\n" ;
-            System.out.print(outLine);
-            out.write(outLine);
-            out.flush();
+            sendLine(outLine);
 
             while((inLine=in.readLine())!=null){
 
@@ -70,73 +55,77 @@ class SmtpClient {
                     break ;
                 }
             }
-            outLine = "MAIL FROM:<JQP@bar.com>" + "\n";
+
+        }catch(Exception e){
+            System.err.println("Erreur " + e);
+        }
+        
+    }
+
+    public void send(Email email) {
+        
+        String inLine ="";
+        String outLine ;
+        
+        outLine = "MAIL FROM:<"+email.getSender() + ">\n";
+        sendLine(outLine);
+        receptingLine(inLine);
+
+        for(var r : email.getReceivers()){
+            sendLine("RCPT TO:<"+r+ ">\n");
+            receptingLine(inLine);
+        }
+
+        outLine = "DATA" + "\n";
+        sendLine(outLine);
+        receptingLine(inLine);
+
+        outLine = "From:<"+email.getSender() + ">\n";
+        sendLine(outLine);
+
+        outLine = "Subject: "+email.getSubject() + "\n";
+        sendLine(outLine);
+
+        outLine = "\n" +email.getBody() + "\r\n.\r\n";
+        sendLine(outLine);
+        receptingLine(inLine);
+
+        System.out.println("Sending email... (" + smtpServerAddress + ":" + smtpServerPort + ")");
+        System.out.println(email);
+        
+        
+    }
+
+    public void quit() {
+
+        String inLine="" ;
+        sendLine("QUIT\n");
+        receptingLine(inLine);
+
+        System.out.println("Closing connection...");
+    }
+
+    private String getSmtpServerAddress(){return smtpServerAddress;}
+    private int getSmtpServerPort(){return smtpServerPort;}
+    private Charset getEncoding(){return encoding;}
+    private void sendLine(String outLine){
+
+        try{
             System.out.print(outLine);
             out.write(outLine);
             out.flush();
+        }catch(IOException e){
+            System.err.println("Error "+ e);
+        }
+        
 
+    }
+    private void receptingLine(String inLine){
+        try{
             inLine = in.readLine();
             System.out.println(inLine);
-
-            outLine = "RCPT TO:<Jones@XYZ.COM>" + "\n";
-            System.out.print(outLine);
-            out.write(outLine);
-            out.flush();
-
-            inLine = in.readLine();
-            System.out.println(inLine);
-
-            outLine = "RCPT TO:<Admin.MRC@foo.com>" + "\n";
-            System.out.print(outLine);
-            out.write(outLine);
-            out.flush();
-
-            inLine = in.readLine();
-            System.out.println(inLine);
-
-            outLine = "DATA" + "\n";
-            System.out.print(outLine);
-            out.write(outLine);
-            out.flush();
-
-            inLine = in.readLine();
-            System.out.println(inLine);
-
-            outLine = "From: John Q. Public <JQP@bar.com>" + "\n";
-            System.out.print(outLine);
-            out.write(outLine);
-            out.flush();
-
-            outLine = "To: Jones@xyz.com" + "\n";
-            System.out.print(outLine);
-            out.write(outLine);
-            out.flush();
-
-            outLine = "To: Admin.MRC@foo.com" + "\n";
-            System.out.print(outLine);
-            out.write(outLine);
-            out.flush();
-
-            outLine = "Subject: The Next Meeting of the Board" + "\n";
-            System.out.print(outLine);
-            out.write(outLine);
-            out.flush();
-
-            outLine = "\nBill:\nThe next meeting of the board of directors will be on Tuesday.\nJohn." + "\r\n.\r\n";
-            System.out.print(outLine);
-            out.write(outLine);
-            out.flush();
-
-            inLine = in.readLine();
-            System.out.println(inLine);
-
-            //appelle à la fonction de récup des adresses e-mail
-            //génère les groupes selon le param n
-            //choisir le MSG
-            //String mail ;
-            //out.write("MAIL FROM:<" + mail);
-        } catch (IOException e) {
-            System.out.println("Client: exception while using client socket: " + e);
+        }catch(IOException e){
+            System.err.println("Error "+ e);
         }
     }
 }
