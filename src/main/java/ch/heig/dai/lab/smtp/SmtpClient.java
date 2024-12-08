@@ -32,33 +32,24 @@ class SmtpClient {
     // Methods
     // ------------------------------------------------------------------------------
     public void connect()throws UnknownHostException ,IOException{
-        
-        
         socket = new Socket(smtpServerAddress, smtpServerPort);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream(), encoding));
         out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), encoding));
         System.out.println("Connecting to " + smtpServerAddress + ":" + smtpServerPort);
 
-        String inLine ;
-
         checkSMTPServerStatut("220");
-        
         sendLine("EHLO test");
 
-        while((inLine=in.readLine())!=null){
-
+        String inLine;
+        while ((inLine = in.readLine()) != null){
             if(inLine.charAt(3) == ' '){
                 break ;
             }
         }
-
-        
     }
 
-    public void send(Email email) throws IOException{
-
+    public void send(Email email) throws IOException {
         // MAIL FROM
-        
         sendLine("MAIL FROM:<" + email.getSender() + ">");
         checkSMTPServerStatut("250");
     
@@ -69,7 +60,6 @@ class SmtpClient {
         }
     
         // DATA
-        
         sendLine("DATA");
         checkSMTPServerStatut("354");
 
@@ -82,14 +72,11 @@ class SmtpClient {
         sendLine(content.toString());
         checkSMTPServerStatut("250");
 
-    
         System.out.println("Sending email... (" + smtpServerAddress + ":" + smtpServerPort + ")");
         System.out.println(email);
     }
-    
 
-    public void quit()throws IOException {
-
+    public void quit() throws IOException {
         sendLine("QUIT");
         checkSMTPServerStatut("221");
         in.close();
@@ -99,20 +86,16 @@ class SmtpClient {
         System.out.println("Closing connection...");
     }
 
-
-    private void sendLine(String outLine) throws IOException{
-
+    private void sendLine(String outLine) throws IOException {
         out.write(outLine +"\n");
-        out.flush();    
-        
+        out.flush();
     }
-    private void checkSMTPServerStatut(String prefix)throws IOException{
-        
+
+    private void checkSMTPServerStatut(String prefix) throws IOException{
         String inLine = in.readLine();
-        if(!inLine.startsWith(prefix)){
+
+        if (!inLine.startsWith(prefix)){
             throw new IOException("[SMTP Server] " + inLine);
         }
-        
     }
-    
 }
