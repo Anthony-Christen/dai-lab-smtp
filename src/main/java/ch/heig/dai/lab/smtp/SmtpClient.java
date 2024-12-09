@@ -82,7 +82,8 @@
  
          StringBuilder content = new StringBuilder();
          content.append("Content-Type: text/plain; charset=\"").append(encoding.name()).append("\"\n") // Encoding
-         .append("From: ").append(email.getSender()).append("\n")    // Headers
+         .append("From: ").append(email.getSender()).append("\n") // Headers
+         .append("To: you\n")                                         // To   
          .append("Subject: ").append(email.getSubject()).append("\n") // Subject
          .append("\n").append(email.getBody()).append("\r\n.\r");  // Body
  
