@@ -142,6 +142,18 @@ classDiagram
     }
     
     class SmtpClient {
+        -String smtpServerAddress
+        -int smtpServerPort
+        -Charset encoding
+        -Socket socket
+        -BufferedReader in
+        -BufferedWriter out
+        -void sendLine(String outLine)
+        -void checkSMTPServerStatut(String prefix)
+        +SmtpClient(String smtpServerAddress, int smtpServerPort, Charset encoding)
+        +void connect() 
+        +void send(Email email) 
+        +void quit()
     }
     
     Email --> Message
@@ -231,6 +243,20 @@ Responsibilities:
 - Generate Emails: Calls the `generateEmails()` method to create a list of emails
   based on the groups and messages.
 - Send emails: Sends the generated emails using the SMTP client.
+
+#### SmtpClient
+
+The `SmtpClient` class handles communication with an SMTP server to send emails. It abstracts the complexities of establishing a connection, sending SMTP commands, and processing server responses.
+
+Responsibilities:
+
+- Establish connection: Opens a socket to the specified SMTP server, initializes input and output streams, and performs the initial handshake (`EHLO` command).
+- Send emails: Takes an `Email` object containing the sender, recipients, subject, and body. It handles the `MAIL FROM`, `RCPT TO`, and `DATA` commands and transfers the email content.
+- Manage disconnection: Sends the `QUIT` command to gracefully close the connection to the SMTP server.
+- Validate server responses: Verifies SMTP status codes for each command. If a command fails, it throws an exception with the server's error message.
+
+The `SmtpClient` class provides a simple and efficient interface for sending emails while adhering to the SMTP protocol.
+
 
 ### SMTP client interaction
 
