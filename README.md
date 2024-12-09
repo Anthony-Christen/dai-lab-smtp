@@ -252,19 +252,40 @@ Responsibilities:
 The `SmtpClient` class provides a simple and efficient interface for sending emails while adhering to the SMTP protocol.
 
 
-### SMTP client interaction
+### SMTP client interaction with server
 
 ```mermaid
 sequenceDiagram
     participant App as EmailPrankApp
-    participant SMTP as SmtpClient
-    participant Mock as MailDev
+    participant Client as SMTP Client
+    participant Server as SMTP Server (MailDev)
 
-    App->>SMTP: Connect to SMTP server
-    loop For each group
-        App->>SMTP: Send email
-        SMTP->>Mock: Deliver email
+    Note over App,Server: Init connection
+    App->>Client: connect() : Connect to SMTP server
+    Client->>Server: Connection (Socket)
+    Server-->>Client: 220 Service ready
+    Client->>Server: EHLO test
+    Server-->>Client: 250 OK (multilines response)
+
+    Note over App,Server: Send emails
+    loop For each email
+        App->>Client: send(email)
+
+        Note over Client,Server: Send email infos to SMTP server
+        Client->>Server: MAIL FROM:<sender@example.com>
+        Server-->>Client: 250 OK
+        Client->>Server: RCPT TO:<receiver1@example.com>
+        Server-->>Client: 250 OK
+        Client->>Server: RCPT TO:<receiver2@example.com>
+        Server-->>Client: 250 OK
+        Client->>Server: DATA
+        Server-->>Client: 354 Start mail input
+        Client->>Server: <email content>\r\n.\r\n
+        Server-->>Client: 250 OK
     end
-    App->>SMTP: Quit connection
-    SMTP-->>App: Acknowledgment
+
+    Note over App,Server: Close connection
+    App->>Client: quit()
+    Client->>Server: QUIT
+    Server-->>Client: 221 Closing connection
 ```
