@@ -145,12 +145,6 @@ classDiagram
         -String smtpServerAddress
         -int smtpServerPort
         -Charset encoding
-        -Socket socket
-        -BufferedReader in
-        -BufferedWriter out
-        -void sendLine(String outLine)
-        -void checkSMTPServerStatut(String prefix)
-        +SmtpClient(String smtpServerAddress, int smtpServerPort, Charset encoding)
         +void connect() 
         +void send(Email email) 
         +void quit()
